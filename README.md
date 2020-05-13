@@ -1,6 +1,6 @@
 # Blockchain Bulletin Board
 
-A basic bulletin board where people can add messages and see other messages anonymously. This was built using blockchain and is a Dapp (Distributed App). It runs on a private etheruem network.
+A basic bulletin board where people can add messages and see other messages anonymously. This was built using blockchain and is a Dapp (Decentralized App). It runs on a private etheruem network.
 
 ### Tech Stack
 * **HTML, TailwindCSS and JS** for the frontend.
