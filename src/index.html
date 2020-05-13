@@ -1,0 +1,155 @@
+<!-- index.html -->
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Blockchain Bulletin Board</title>
+    <link rel="stylesheet" href="https://unpkg.com/tailwindcss/dist/tailwind.min.css" />
+    <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,400i,700" rel="stylesheet" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+</head>
+
+<body class="text-gray-700" style="
+            font-family: 'Source Sans Pro', sans-serif;
+            background-color: #e2f1fb;
+        ">
+    <div class="rounded-lg shadow-lg bg-white m-16 mt-6 p-4 flex justify-center text-black text-2xl">
+        Blockchain Bulletin Board
+    </div>
+    <div class="rounded-lg shadow-lg bg-blue-200 m-16 mt-6 p-4 flex justify-center text-black text-2xl">
+        <div>
+            <div id="messages">
+
+            </div>
+            <div>
+
+                <div class="flex justify-center mt-6">
+                    <div id="messageCount" class="rounded-full bg-red-300 mr-4 px-4"></div>
+                    <div class="bg-white rounded-lg">
+                        <div class="flex flex-wrap justify-between md:flex-row">
+                            <input id="messageInput" type="email"
+                                class="m-1 p-2 appearance-none text-gray-700 text-sm focus:outline-none"
+                                placeholder="Enter message" />
+                            <button
+                                class="w-full m-1 p-2 text-sm bg-blue-500 hover:bg-blue-700 rounded-lg font-semibold uppercase lg:w-auto"
+                                onclick="addMessage();">
+                                Add message
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <button
+                    class="w-full m-1 mt-6 ml-32 p-2 text-sm bg-blue-500 hover:bg-blue-700 rounded-lg font-semibold uppercase lg:w-auto"
+                    onclick="refresh();">
+                    Refresh
+                </button>
+            </div>
+        </div>
+</body>
+<script src="js/web3.min.js"></script>
+<script>
+
+    if (typeof web3 !== 'undefined') {
+        web3 = new Web3(web3.currentProvider);
+    } else {
+        web3 = new Web3(new Web3.providers.HttpProvider("http://localhost:7545"));
+    }
+
+    if (window.ethereum) {
+        ethereum.enable();
+    }
+
+    web3.eth.getAccounts((error, result) => {
+        web3.eth.defaultAccount = result[0];
+    });
+
+    let contractAbi = [
+        {
+            constant: false,
+            inputs: [
+                {
+                    name: "message",
+                    type: "string",
+                },
+            ],
+            name: "addMessage",
+            outputs: [],
+            payable: false,
+            stateMutability: "nonpayable",
+            type: "function",
+        },
+        {
+            inputs: [],
+            payable: false,
+            stateMutability: "nonpayable",
+            type: "constructor",
+        },
+        {
+            constant: true,
+            inputs: [
+                {
+                    name: "index",
+                    type: "uint256",
+                },
+            ],
+            name: "getMessage",
+            outputs: [
+                {
+                    name: "",
+                    type: "string",
+                },
+            ],
+            payable: false,
+            stateMutability: "view",
+            type: "function",
+        },
+        {
+            constant: true,
+            inputs: [],
+            name: "getMessageCount",
+            outputs: [
+                {
+                    name: "",
+                    type: "uint256",
+                },
+            ],
+            payable: false,
+            stateMutability: "view",
+            type: "function",
+        },
+    ];
+
+    let contractAddress = "...";
+
+    var contract = new web3.eth.Contract(contractAbi, contractAddress);
+
+    function refresh() {
+
+        document.getElementById("messages").innerHTML = "";
+
+        contract.methods.getMessageCount().call().then(function (val) {
+            document.getElementById("messageCount").innerHTML = val;
+        });
+
+        var i;
+        for (i = 0; i < document.getElementById("messageCount").innerHTML; i++) {
+            contract.methods.getMessage(i).call().then(function (val) {
+                document.getElementById("messages").innerHTML += '<div class="rounded-full bg-indigo-500 px-2 py-1 text-lg font-bold mr-3 my-4 text-white">' +
+                    val + '</div>';
+            });
+
+        }
+    }
+    refresh();
+
+
+    function addMessage() {
+        contract.methods.addMessage(document.getElementById('messageInput').value).send({ from: web3.eth.defaultAccount }, function () { });
+
+        refresh();
+    }
+
+</script>
+
+</html>
